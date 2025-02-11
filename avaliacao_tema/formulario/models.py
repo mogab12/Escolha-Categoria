@@ -1,7 +1,11 @@
-# formulario/models.py
-
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+
+class Usuario(models.Model):
+    nome = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.nome
 
 class Categoria(models.Model):
     nome = models.CharField(max_length=200)
@@ -10,7 +14,8 @@ class Categoria(models.Model):
         return self.nome
 
 class Avaliacao(models.Model):
-    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, null=True)
+    categoria = models.CharField(max_length=100)
     relevancia_pessoal = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     curiosidade_intelectual = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     disponibilidade_recursos = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
@@ -18,9 +23,9 @@ class Avaliacao(models.Model):
     impacto_vida_diaria = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     objetivos_crescimento = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     novidade_variedade = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    pontuacao_total = models.FloatField(default=0)
 
     def calcular_pontuacao_total(self):
-        # Pesos sugeridos das métricas
         pesos = {
             'relevancia_pessoal': 0.25,
             'curiosidade_intelectual': 0.10,
@@ -30,13 +35,7 @@ class Avaliacao(models.Model):
             'objetivos_crescimento': 0.15,
             'novidade_variedade': 0.10,
         }
-        total = (
-            self.relevancia_pessoal * pesos['relevancia_pessoal'] +
-            self.curiosidade_intelectual * pesos['curiosidade_intelectual'] +
-            self.disponibilidade_recursos * pesos['disponibilidade_recursos'] + 
-            self.prazer_participacao * pesos['prazer_participacao'] +
-            self.impacto_vida_diaria * pesos['impacto_vida_diaria'] +
-            self.objetivos_crescimento * pesos['objetivos_crescimento'] +
-            self.novidade_variedade * pesos['novidade_variedade']
-        )
+        total = sum(getattr(self, campo) * peso for campo, peso in pesos.items())
+        self.pontuacao_total = total
+        self.save()
         return total

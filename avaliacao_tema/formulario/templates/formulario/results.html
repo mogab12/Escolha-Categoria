@@ -1,16 +1,212 @@
-<!-- formulario/templates/formulario/results.html -->
-
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resultados da Avaliação</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #a17a69;
+            --secondary-color: #d6c9c3;
+            --background-color: #f5efe9;
+            --text-color: #4a4a4a;
+            --accent-color: #8c7b75;
+            --light-accent: #e0d5cf;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--background-color);
+        }
+        
+        h1, h2 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        h1 {
+            font-size: 2.5em;
+        }
+
+        h2 {
+            font-size: 1.8em;
+            margin-top: 40px;
+        }
+        
+        p {
+            font-size: 1.1em;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .button {
+            display: block;
+            width: 200px;
+            margin: 30px auto;
+            padding: 12px 24px;
+            background-color: var(--primary-color);
+            color: var(--background-color);
+            text-decoration: none;
+            text-align: center;
+            border-radius: 25px;
+            transition: all 0.3s;
+            font-size: 1em;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .button:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .results-container {
+            background-color: var(--secondary-color);
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background-color: var(--secondary-color);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--light-accent);
+        }
+        
+        th {
+            background-color: var(--primary-color);
+            color: var(--background-color);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            letter-spacing: 0.05em;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        tr:nth-child(even) {
+            background-color: var(--light-accent);
+        }
+        
+        tr:hover {
+            background-color: var(--accent-color);
+            color: var(--background-color);
+            transition: all 0.3s ease;
+        }
+        
+        canvas {
+            max-width: 100%;
+            height: auto;
+            margin-top: 20px;
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .results-container, .button, table, canvas {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+    </style>
 </head>
 <body>
+    <h1>Resultados da Avaliação</h1>
 
-    <h1>Resultados das Avaliações de Categorias</h1>
-    <p>Aqui você verá os resultados computados.</p>
+    <h2>Ranking Geral das Categorias</h2>
+    <table>
+        <tr>
+            <th>Posição</th>
+            <th>Categoria</th>
+            <th>Pontuação Média</th>
+        </tr>
+        {% for categoria in ranking_geral %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ categoria.nome }}</td>
+            <td>{{ categoria.pontuacao_media|floatformat:2 }}</td>
+        </tr>
+        {% endfor %}
+    </table>
 
+    <h2>Gráfico Comparativo</h2>
+    <canvas id="graficoComparativo"></canvas>
+
+    <script>
+        var ctx = document.getElementById('graficoComparativo').getContext('2d');
+        var dados = JSON.parse('{{ dados_grafico|safe }}');
+        
+        var chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: dados.categorias,
+                datasets: dados.usuarios.map((usuario, index) => ({
+                    label: usuario,
+                    data: dados.pontuacoes[index].map(valor => valor === null ? 0 : valor),
+                    backgroundColor: `rgba(${Math.floor(Math.random()*255)},${Math.floor(Math.random()*255)},${Math.floor(Math.random()*255)},0.5)`
+                }))
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 5
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Pontuações por Categoria e Usuário'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += context.parsed.y.toFixed(2);
+                                } else {
+                                    label += 'Não avaliado';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>

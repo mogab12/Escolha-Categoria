@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Avaliação - {{ categoria.nome }}</title>
+    <title>Avaliação - {{ categoria }}</title>
     <style>
         :root {
             --primary-color: #a68779;
@@ -162,26 +162,27 @@
     </style>
 </head>
 <body>
-    <h1>{{ categoria.nome }}</h1>
+    <h1>{{ categoria }}</h1>
     
-
 
     <form method="post">
         {% csrf_token %}
         {% for field in form %}
-            <div class="metric-container">
-                <div class="metric-description">
-                    {{ METRICS_DESCRIPTIONS|get_item:field.name }}
+            {% if field.name != 'categoria' and field.name != 'usuario' %}
+                <div class="metric-container">
+                    <div class="metric-description">
+                        {{ METRICS_DESCRIPTIONS|get_item:field.name }}
+                    </div>
+                    <div class="radio-group">
+                        {% for choice in field %}
+                            <div class="radio-option">
+                                {{ choice.tag }}
+                                <label for="{{ choice.id_for_label }}">{{ choice.choice_label }}</label>
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
-                <div class="radio-group">
-                    {% for radio in field %}
-                        <div class="radio-option">
-                            {{ radio.tag }}
-                            <label for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
+            {% endif %}
         {% endfor %}
         <button type="submit">Enviar Avaliação</button>
     </form>
