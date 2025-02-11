@@ -1,8 +1,9 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
-
+from django.utils import timezone
 class Usuario(models.Model):
     nome = models.CharField(max_length=200)
+    data_criacao = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.nome
@@ -24,6 +25,7 @@ class Avaliacao(models.Model):
     objetivos_crescimento = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     novidade_variedade = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     pontuacao_total = models.FloatField(default=0)
+    data_criacao = models.DateTimeField(default=timezone.now)
 
     def calcular_pontuacao_total(self):
         pesos = {
