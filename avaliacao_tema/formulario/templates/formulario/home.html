@@ -1,16 +1,16 @@
-<!-- formulario/templates/formulario/avaliar.html -->
+<!-- formulario/templates/formulario/home.html -->
 
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Avaliação - {{ categoria.nome }}</title>
+    <title>Avaliação de Categorias</title>
     <style>
         :root {
-            --primary-color: #a68779;
-            --secondary-color: #dfd3cd;
-            --background-color: #f5f2ef;
+            --primary-color: #a17a69;
+            --secondary-color: #d6c9c3;
+            --background-color: #f5efe9;
             --text-color: #4a4a4a;
             --accent-color: #8c7b75;
             --light-accent: #e0d5cf;
@@ -162,28 +162,17 @@
     </style>
 </head>
 <body>
-    <h1>{{ categoria.nome }}</h1>
+    <h1>Bem-vindo à Avaliação de Categorias</h1>
     
+    <p>
+        Esta é uma avaliação para definir uma categoria que melhor se adequa ao seu perfil.
+        Você responderá a uma série de perguntas sobre diferentes categorias para determinar
+        a mais relevante para você.
+    </p>
 
-
-    <form method="post">
-        {% csrf_token %}
-        {% for field in form %}
-            <div class="metric-container">
-                <div class="metric-description">
-                    {{ METRICS_DESCRIPTIONS|get_item:field.name }}
-                </div>
-                <div class="radio-group">
-                    {% for radio in field %}
-                        <div class="radio-option">
-                            {{ radio.tag }}
-                            <label for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-        {% endfor %}
-        <button type="submit">Enviar Avaliação</button>
-    </form>
+    <div class="button-container">
+        <a href="{% url 'avaliar' categoria_id=1 %}" class="button">Iniciar Avaliação</a>
+        <a href="{% url 'results' %}" class="button">Ver Resultados</a>
+    </div>
 </body>
 </html>
