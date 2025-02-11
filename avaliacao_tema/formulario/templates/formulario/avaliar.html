@@ -1,0 +1,31 @@
+<!-- formulario/templates/formulario/avaliar.html -->
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avaliação de Categorias - {{ categoria.nome }}</title>
+</head>
+<body>
+
+    <h1>Avaliação da Categoria: {{ categoria.nome }}</h1>
+    <p>{{ texto_explicativo }}</p>  <!-- Texto explicativo da categoria -->
+
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+            <div>
+                <label>{{ field.label_tag }}</label>
+                <div>
+                    {% for radio in field %}
+                        <label>{{ radio.tag }} {{ radio.choice_label }}</label>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+        <button type="submit">Enviar Avaliação</button>
+    </form>
+
+</body>
+</html>
