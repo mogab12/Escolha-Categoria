@@ -9,7 +9,7 @@ class UsuarioForm(forms.ModelForm):
         fields = ['nome']
 
 class AvaliacaoForm(forms.ModelForm):
-    CHOICES = [(i, str(i)) for i in range(1, 6)]
+    CHOICES = [(str(i), str(i)) for i in range(1, 6)]
 
     relevancia_pessoal = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect)
     curiosidade_intelectual = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect)
@@ -22,3 +22,9 @@ class AvaliacaoForm(forms.ModelForm):
     class Meta:
         model = Avaliacao
         exclude = ['categoria', 'usuario', 'pontuacao_total']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            if isinstance(field, forms.ChoiceField):
+                field.choices = [(str(i), str(i)) for i in range(1, 6)]
