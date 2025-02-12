@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: avaliacao-tema
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: cd avaliacao_tema && gunicorn avaliacao_tema.wsgi:application
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: false
